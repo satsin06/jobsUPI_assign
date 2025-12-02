@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/profile_provider.dart';
+import '../widgets/ai_guide_button.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -39,6 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                
                 _buildTextField("Full Name", nameController),
                 _buildTextField("Age", ageController, isNumber: true),
                 _buildTextField("Desired Job Role", roleController),
@@ -118,6 +120,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+
+      floatingActionButton: const AIGuideButton(screen: "profile"),
     );
   }
 

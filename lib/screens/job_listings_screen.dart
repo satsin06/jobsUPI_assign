@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:jobsupi_assignment/model/job_model.dart';
 import 'package:provider/provider.dart';
 import '../providers/jobs_provider.dart';
+import '../widgets/ai_guide_button.dart';
 
 class JobListingsScreen extends StatefulWidget {
   const JobListingsScreen({super.key});
@@ -18,17 +20,17 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
     final jobsProvider = Provider.of<JobsProvider>(context);
     final jobs = jobsProvider.jobs;
 
-    List<Map<String, dynamic>> filteredJobs =
+    List<Job> filteredJobs =
         jobs.where((job) {
           bool roleMatch =
               selectedRole == "All" ||
-              job['title'].toString().toLowerCase().contains(
+              job.title.toLowerCase().contains(
                 selectedRole.toLowerCase(),
               );
 
           bool expMatch =
               selectedExperience == "All" ||
-              job['experience'].toString().toLowerCase().contains(
+              job.experience.toString().toLowerCase().contains(
                 selectedExperience.toLowerCase(),
               );
 
@@ -107,16 +109,16 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    job['title'],
+                                    job.title,
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   const SizedBox(height: 6),
-                                  Text("Experience: ${job['experience']}"),
-                                  Text("Salary: ${job['salary']}"),
-                                  Text("Location: ${job['location']}"),
+                                  Text("Experience: ${job.experience}"),
+                                  Text("Salary: ${job.salary}"),
+                                  Text("Location: ${job.location}"),
 
                                   const SizedBox(height: 12),
 
@@ -140,6 +142,8 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
           ],
         ),
       ),
+
+      floatingActionButton: const AIGuideButton(screen: "jobs"),
     );
   }
 
