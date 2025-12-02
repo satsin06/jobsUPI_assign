@@ -63,30 +63,38 @@ class _AIAgentChatState extends State<_AIAgentChat> {
             const Divider(),
 
             Expanded(
-              child: ListView.builder(
-                itemCount: messages.length,
-                itemBuilder: (_, index) {
-                  final msg = messages[index];
-                  final isUser = msg["sender"] == "user";
+              child:
+                  messages.isEmpty
+                      ? _buildSuggestions() 
+                      : ListView.builder(
+                        itemCount: messages.length,
+                        itemBuilder: (_, index) {
+                          final msg = messages[index];
+                          final isUser = msg["sender"] == "user";
 
-                  return Align(
-                    alignment:
-                        isUser ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 6,
-                        horizontal: 12,
+                          return Align(
+                            alignment:
+                                isUser
+                                    ? Alignment.centerRight
+                                    : Alignment.centerLeft,
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 6,
+                                horizontal: 12,
+                              ),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color:
+                                    isUser
+                                        ? Colors.blue[100]
+                                        : Colors.grey[300],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(msg["text"]!),
+                            ),
+                          );
+                        },
                       ),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isUser ? Colors.blue[100] : Colors.grey[300],
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(msg["text"]!),
-                    ),
-                  );
-                },
-              ),
             ),
 
             Row(
@@ -135,5 +143,84 @@ class _AIAgentChatState extends State<_AIAgentChat> {
         ),
       ),
     );
+  }
+
+  List<String> getSuggestedQuestions() {
+    if (widget.screen == "profile") {
+      return [
+        "What details should I fill?",
+        "Why is profile needed?",
+        "How do I save my profile?",
+      ];
+    }
+
+    return [
+      "Which job suits me?",
+      "How do filters work?",
+      "What jobs are available?",
+    ];
+  }
+
+  Widget _buildSuggestions() {
+    final suggestions = getSuggestedQuestions();
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Try asking:",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children:
+                suggestions.map((q) {
+                  return GestureDetector(
+                    onTap: () => _sendSuggestion(q),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.blue.shade200),
+                      ),
+                      child: Text(
+                        q,
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _sendSuggestion(String question) {
+    setState(() {
+      messages.add({"sender": "user", "text": question});
+    });
+
+    final profile = Provider.of<ProfileProvider>(context, listen: false);
+    final jobs = Provider.of<JobsProvider>(context, listen: false);
+    final ai = AIAgent(profile: profile, jobs: jobs);
+
+    final aiResponse = ai.ask(question, widget.screen);
+
+    setState(() {
+      messages.add({"sender": "ai", "text": aiResponse});
+    });
   }
 }
