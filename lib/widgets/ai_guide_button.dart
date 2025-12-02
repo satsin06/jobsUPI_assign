@@ -56,10 +56,10 @@ class _AIAgentChatState extends State<_AIAgentChat> {
         child: Column(
           children: [
             const SizedBox(height: 16),
-            const Text("Ask Shanta tAI", style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            )),
+            const Text(
+              "Ask Shanta tAI",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const Divider(),
 
             Expanded(
@@ -74,7 +74,9 @@ class _AIAgentChatState extends State<_AIAgentChat> {
                         isUser ? Alignment.centerRight : Alignment.centerLeft,
                     child: Container(
                       margin: const EdgeInsets.symmetric(
-                          vertical: 6, horizontal: 12),
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: isUser ? Colors.blue[100] : Colors.grey[300],
@@ -90,11 +92,21 @@ class _AIAgentChatState extends State<_AIAgentChat> {
             Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(
-                      hintText: "Ask something...",
-                      contentPadding: EdgeInsets.all(12),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextField(
+                      controller: controller,
+                      decoration: const InputDecoration(
+                        hintText: "Ask something...",
+                        contentPadding: EdgeInsets.all(12),
+                      ),
                     ),
                   ),
                 ),
