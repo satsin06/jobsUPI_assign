@@ -12,8 +12,19 @@ class AIGuideButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      backgroundColor: const Color(0xFF1E4CA1),
-      child: const Icon(Icons.smart_toy),
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(100),
+        clipBehavior: Clip.hardEdge,
+        child: Image.asset(
+          "assets/shanta/happy.png",
+          alignment: Alignment.center,
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(Icons.smart_toy, size: 30, color: Colors.white);
+          },
+        ),
+      ),
       onPressed: () {
         showModalBottomSheet(
           context: context,
@@ -40,6 +51,26 @@ class _AIAgentChat extends StatefulWidget {
 class _AIAgentChatState extends State<_AIAgentChat> {
   final TextEditingController controller = TextEditingController();
   final List<Map<String, String>> messages = [];
+  String shantaEmotion = "sushing";
+  bool isTyping = false;
+
+  void updateEmotionFromUserMessage(String msg) {
+    msg = msg.toLowerCase();
+
+    if (msg.contains("sad") || msg.contains("upset") || msg.contains("cry")) {
+      shantaEmotion = "crying";
+    } else if (msg.contains("help") || msg.contains("issue")) {
+      shantaEmotion = "thinking";
+    } else if (msg.contains("job") || msg.contains("recommend")) {
+      shantaEmotion = "happy";
+    } else if (msg.contains("what") || msg.contains("how")) {
+      shantaEmotion = "thinking";
+    } else if (msg.contains("hello") || msg.contains("hi")) {
+      shantaEmotion = "happy";
+    } else {
+      shantaEmotion = "surprised_full";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,40 +94,47 @@ class _AIAgentChatState extends State<_AIAgentChat> {
             const Divider(),
 
             Expanded(
-              child:
-                  messages.isEmpty
-                      ? _buildSuggestions() 
-                      : ListView.builder(
-                        itemCount: messages.length,
-                        itemBuilder: (_, index) {
-                          final msg = messages[index];
-                          final isUser = msg["sender"] == "user";
+              child: Column(
+                children: [
+                  Expanded(
+                    child:
+                        messages.isEmpty
+                            ? _buildSuggestions()
+                            : ListView.builder(
+                              itemCount: messages.length,
+                              itemBuilder: (_, index) {
+                                final msg = messages[index];
+                                final isUser = msg["sender"] == "user";
 
-                          return Align(
-                            alignment:
-                                isUser
-                                    ? Alignment.centerRight
-                                    : Alignment.centerLeft,
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(
-                                vertical: 6,
-                                horizontal: 12,
-                              ),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color:
-                                    isUser
-                                        ? Colors.blue[100]
-                                        : Colors.grey[300],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(msg["text"]!),
+                                return Align(
+                                  alignment:
+                                      isUser
+                                          ? Alignment.centerRight
+                                          : Alignment.centerLeft,
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                      horizontal: 12,
+                                    ),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          isUser
+                                              ? Colors.blue[100]
+                                              : Colors.grey[300],
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(msg["text"]!),
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
-            ),
+                  ),
 
+                  if (isTyping) buildTypingIndicator(),
+                ],
+              ),
+            ),
             Row(
               children: [
                 Expanded(
@@ -120,21 +158,36 @@ class _AIAgentChatState extends State<_AIAgentChat> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.send, color: Colors.blue),
-                  onPressed: () {
+                  onPressed: () async {
                     String userMsg = controller.text.trim();
                     if (userMsg.isEmpty) return;
 
                     setState(() {
                       messages.add({"sender": "user", "text": userMsg});
+                      updateEmotionFromUserMessage(userMsg);
+                      isTyping = true;
+                      shantaEmotion = "thinking";
                     });
+
+                    controller.clear();
+
+                    await Future.delayed(const Duration(seconds: 1));
 
                     String aiResponse = ai.ask(userMsg, widget.screen);
 
                     setState(() {
                       messages.add({"sender": "ai", "text": aiResponse});
-                    });
+                      isTyping = false;
 
-                    controller.clear();
+                      if (aiResponse.contains("recommend")) {
+                        shantaEmotion = "happy";
+                      } else if (aiResponse.contains("sorry") ||
+                          aiResponse.contains("not sure")) {
+                        shantaEmotion = "sad";
+                      } else {
+                        shantaEmotion = "thinking";
+                      }
+                    });
                   },
                 ),
               ],
@@ -222,5 +275,21 @@ class _AIAgentChatState extends State<_AIAgentChat> {
     setState(() {
       messages.add({"sender": "ai", "text": aiResponse});
     });
+  }
+
+  Widget buildTypingIndicator() {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          child: Image.asset("assets/shanta/sushing.png", width: 45),
+        ),
+        const SizedBox(width: 8),
+        const Text(
+          "Shanta is typing...",
+          style: TextStyle(fontSize: 14, color: Colors.grey),
+        ),
+      ],
+    );
   }
 }
