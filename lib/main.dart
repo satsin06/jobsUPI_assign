@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jobsupi_assignment/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/profile_provider.dart';
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
 
-        home: const ProfileScreen(),
+        home: const SplashScreen(),
 
         routes: {
           "/profile": (context) => const ProfileScreen(),

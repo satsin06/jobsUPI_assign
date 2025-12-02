@@ -24,9 +24,7 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
         jobs.where((job) {
           bool roleMatch =
               selectedRole == "All" ||
-              job.title.toLowerCase().contains(
-                selectedRole.toLowerCase(),
-              );
+              job.title.toLowerCase().contains(selectedRole.toLowerCase());
 
           bool expMatch =
               selectedExperience == "All" ||
@@ -58,7 +56,8 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                 Expanded(
                   child: _buildDropdown(
                     "Role",
-                    ["All", "Flutter", "Python", "Full Stack"],
+                    jobs.map((job) => job.title).toSet().toList()
+                      ..insert(0, "All"),
                     (value) {
                       setState(() {
                         selectedRole = value!;
@@ -70,7 +69,11 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                 Expanded(
                   child: _buildDropdown(
                     "Experience",
-                    ["All", "1", "2", "3", "4"],
+                    jobs
+                        .map((job) => job.experience.toString())
+                        .toSet()
+                        .toList()
+                      ..insert(0, "All"),
                     (value) {
                       setState(() {
                         selectedExperience = value!;
@@ -92,7 +95,14 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                           style: TextStyle(fontSize: 16),
                         ),
                       )
-                      : ListView.builder(
+                      : GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              childAspectRatio: 1,
+                            ),
                         itemCount: filteredJobs.length,
                         itemBuilder: (context, index) {
                           final job = filteredJobs[index];
@@ -110,6 +120,8 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                                 children: [
                                   Text(
                                     job.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,

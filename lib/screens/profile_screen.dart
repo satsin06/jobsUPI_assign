@@ -40,7 +40,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                
+                Center(
+                  child: Image.asset(
+                    "assets/logo-03.png",
+                    errorBuilder: (context, error, stackTrace) {
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ),
                 _buildTextField("Full Name", nameController),
                 _buildTextField("Age", ageController, isNumber: true),
                 _buildTextField("Desired Job Role", roleController),
@@ -53,64 +60,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: 24),
 
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF1E4CA1),
-                    minimumSize: Size(double.infinity, 50),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF1E4CA1), Color(0xFFF15A25)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Provider.of<ProfileProvider>(
-                        context,
-                        listen: false,
-                      ).updateProfile(
-                        name: nameController.text,
-                        age: int.parse(ageController.text),
-                        role: roleController.text,
-                        experience: int.parse(experienceController.text),
-                        address: addressController.text,
-                      );
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      minimumSize: Size(double.infinity, 50),
+                    ),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        Provider.of<ProfileProvider>(
+                          context,
+                          listen: false,
+                        ).updateProfile(
+                          name: nameController.text,
+                          age: int.parse(ageController.text),
+                          role: roleController.text,
+                          experience: int.parse(experienceController.text),
+                          address: addressController.text,
+                        );
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Profile Saved Successfully"),
-                        ),
-                      );
-                    }
-                  },
-                  child: const Text(
-                    "Save Profile",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
+                        final provider = Provider.of<ProfileProvider>(
+                          context,
+                          listen: false,
+                        );
 
-                const SizedBox(height: 16),
+                        if (provider.name.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Please save your profile first"),
+                            ),
+                          );
+                          return;
+                        }
 
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFF15A25),
-                    minimumSize: Size(double.infinity, 50),
-                  ),
-                  onPressed: () {
-                    final provider = Provider.of<ProfileProvider>(
-                      context,
-                      listen: false,
-                    );
-
-                    if (provider.name.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Please save your profile first"),
-                        ),
-                      );
-                      return;
-                    }
-
-                    Navigator.pushNamed(context, "/jobs");
-                  },
-                  child: const Text(
-                    "Continue to Job Listings",
-                    style: TextStyle(color: Colors.white),
+                        Navigator.pushNamed(context, "/jobs");
+                      }
+                    },
+                    child: const Text(
+                      "Save & Continue",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
 
